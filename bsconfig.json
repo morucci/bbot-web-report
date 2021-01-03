@@ -23,7 +23,8 @@
     "reason-react",
     "bs-fetch",
     "remotedata-re",
-    "@ahrefs/bs-atdgen-codec-runtime"
+    "@ahrefs/bs-atdgen-codec-runtime",
+    "@jsiebern/bs-material-ui"
   ],
   "refmt": 3
 }
