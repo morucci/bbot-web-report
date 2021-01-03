@@ -1,0 +1,25 @@
+{
+  "name": "web-report",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "bsb -make-world",
+    "start": "bsb -make-world -w",
+    "serve": "parcel serve ./src/index.html",
+    "clean": "find src/ tests/ -name '*.bs.js' -delete && rm -Rf lib node_modules",
+    "atdgen": "cp ../bbot/src/report.atd src/ && atdgen -t src/report.atd && atdgen -bs src/report.atd"
+  },
+  "dependencies": {
+    "@ahrefs/bs-atdgen-codec-runtime": "^2.0.1",
+    "bs-fetch": "^0.6.2",
+    "react": "17.0.1",
+    "react-dom": "^17.0.1",
+    "reason-react": "^0.9.1",
+    "remotedata-re": "^1.1.0"
+  },
+  "devDependencies": {
+    "bs-platform": "^8.2.0",
+    "parcel": "^1.12.4"
+  }
+}
