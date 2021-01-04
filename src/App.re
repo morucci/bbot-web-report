@@ -24,8 +24,26 @@ module ReportEntryTH = {
            Belt.List.make(depth, ())
            ->Belt.List.mapWithIndex((i, _) =>
                <TableCell key={i->string_of_int}>
-                 {("T-" ++ (depth - i)->string_of_int)->React.string}
+                 <b> {("T-" ++ (depth - i)->string_of_int)->React.string} </b>
                </TableCell>
+             )
+           ->Belt.List.concat([
+               <TableCell key="tags">
+                 <b> "Tags"->React.string </b>
+               </TableCell>,
+             ])
+           ->Belt.List.add(
+               <TableCell key="ta"> <b> "TA"->React.string </b> </TableCell>,
+             )
+           ->Belt.List.add(
+               <TableCell key="period">
+                 <b> "Period"->React.string </b>
+               </TableCell>,
+             )
+           ->Belt.List.add(
+               <TableCell key="name">
+                 <b> "Name"->React.string </b>
+               </TableCell>,
              );
          }
          ->listToReactArray}
@@ -34,39 +52,49 @@ module ReportEntryTH = {
   };
 };
 
-module PriceReportEntry = {
+let getRowStyle = (index: int) => {
+  ReactDOM.Style.make(
+    ~backgroundColor={
+      index mod 2 == 0 ? "Ivory" : "WhiteSmoke";
+    },
+    (),
+  );
+};
+
+module PriceReportTR = {
   [@react.component]
-  let make = (~data: WebReport.Report_t.price_report_entry) => {
-    let depth = data.periods->Belt.List.length;
-    <Card>
-      <CardContent>
-        <Typography color=`Initial variant=`Subtitle2>
-          "Price"->React.string
-        </Typography>
-        <TableContainer>
-          <Table size=`Small>
-            <ReportEntryTH depth />
-            <TableBody>
-              <TableRow>
-                {{
-                   data.periods
-                   ->Belt.List.mapWithIndex((i, e) =>
-                       <TableCell key={i->string_of_int}>
-                         {e->Js.Float.toString->React.string}
-                       </TableCell>
-                     );
-                 }
-                 ->listToReactArray}
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </CardContent>
-    </Card>;
+  let make =
+      (
+        ~name: string,
+        ~period: string,
+        ~data: WebReport.Report_t.price_report_entry,
+        ~index: int,
+      ) => {
+    <TableRow style={getRowStyle(index)}>
+      {{
+         data.periods
+         ->Belt.List.mapWithIndex((i, e) =>
+             <TableCell key={i->string_of_int}>
+               {e->Js.Float.toString->React.string}
+             </TableCell>
+           )
+         ->Belt.List.concat([<TableCell key="tag" />])
+         ->Belt.List.add(
+             <TableCell key="ta"> "Price"->React.string </TableCell>,
+           )
+         ->Belt.List.add(
+             <TableCell key="period"> period->React.string </TableCell>,
+           )
+         ->Belt.List.add(
+             <TableCell key="name"> name->React.string </TableCell>,
+           );
+       }
+       ->listToReactArray}
+    </TableRow>;
   };
 };
 
-module MACDReportEntry = {
+module MACDReportTR = {
   let gbToString = (gb: WebReport.Report_t.gb): string =>
     switch (gb) {
     | `BAD => "BAD"
@@ -79,123 +107,101 @@ module MACDReportEntry = {
     };
 
   [@react.component]
-  let make = (~data: WebReport.Report_t.macd_report_entry) => {
-    let depth = data.periods->Belt.List.length;
-    <Card>
-      <CardContent>
-        <Typography color=`Initial variant=`Subtitle2>
-          "MACD"->React.string
-        </Typography>
-        <Grid container=true spacing=`V1 justify=`Space_Around>
-          <Grid item=true>
-            <Chip
-              variant=`Outlined
-              size=`Small
-              avatar={<Avatar> "CS"->React.string </Avatar>}
-              label={data.cs->string_of_int->React.string}
-              color=`Primary
-            />
-          </Grid>
-          <Grid item=true>
-            <Chip
-              variant=`Outlined
-              size=`Small
-              avatar={<Avatar> "M"->React.string </Avatar>}
-              label={data.momentum->gbToString->React.string}
-              color={data.momentum->gbToColor}
-            />
-          </Grid>
-        </Grid>
-        <TableContainer>
-          <Table size=`Small>
-            <ReportEntryTH depth />
-            <TableBody>
-              <TableRow>
-                {{
-                   data.periods
-                   ->Belt.List.mapWithIndex((i, e) =>
-                       <TableCell key={i->string_of_int}>
-                         {"D/"
-                          ++ {
-                            e.diff->Js.Float.toFixedWithPrecision(~digits=5);
-                          }
-                          ++ " M/"
-                          ++ {
-                            e.macd_line
-                            ->Js.Float.toFixedWithPrecision(~digits=5);
-                          }}
-                       </TableCell>
-                     );
-                 }
-                 ->listToReactArray}
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </CardContent>
-    </Card>;
+  let make =
+      (
+        ~name: string,
+        ~period: string,
+        ~data: WebReport.Report_t.macd_report_entry,
+        ~index: int,
+      ) => {
+    let cs =
+      <Chip
+        variant=`Outlined
+        size=`Small
+        avatar={<Avatar> "CS"->React.string </Avatar>}
+        label={data.cs->string_of_int->React.string}
+        color=`Primary
+      />;
+    let momentum =
+      <Chip
+        variant=`Outlined
+        size=`Small
+        avatar={<Avatar> "M"->React.string </Avatar>}
+        label={data.momentum->gbToString->React.string}
+        color={data.momentum->gbToColor}
+      />;
+    <TableRow style={getRowStyle(index)}>
+      {{
+         data.periods
+         ->Belt.List.mapWithIndex((i, e) =>
+             <TableCell key={i->string_of_int}>
+               {"D/"
+                ++ {
+                  e.diff->Js.Float.toFixedWithPrecision(~digits=5);
+                }
+                ++ " M/"
+                ++ {
+                  e.macd_line->Js.Float.toFixedWithPrecision(~digits=5);
+                }}
+             </TableCell>
+           )
+         ->Belt.List.concat([
+             <TableCell key="tag">
+               <Grid container=true> <Grid item=true> cs </Grid> </Grid>
+               <Grid container=true> <Grid item=true> momentum </Grid> </Grid>
+             </TableCell>,
+           ])
+         ->Belt.List.add(
+             <TableCell key="ta"> "MACD"->React.string </TableCell>,
+           )
+         ->Belt.List.add(
+             <TableCell key="period"> period->React.string </TableCell>,
+           )
+         ->Belt.List.add(
+             <TableCell key="name"> name->React.string </TableCell>,
+           );
+       }
+       ->listToReactArray}
+    </TableRow>;
   };
 };
 
-module PairPeriod = {
+module PairTRs = {
   let period_to_string = (period: WebReport.Report_t.period): string =>
     switch (period) {
-    | `ONE_H => "Period: 1H"
-    | `ONE_D => "Period: 1D"
+    | `ONE_H => "1H"
+    | `ONE_D => "1D"
     };
 
   [@react.component]
-  let make = (~pdata: WebReport.Report_t.report_entry) => {
-    <Grid item=true>
-      <Card>
-        <CardContent>
-          <Typography color=`Primary variant=`Subtitle1>
-            {pdata.period->period_to_string->React.string}
-          </Typography>
-          {switch (pdata.data) {
-           | `SUCCESS(re) =>
-             <Grid
-               container=true
-               direction=`Column
-               spacing=`V2
-               justify=`Space_Around>
-               <Grid item=true> <PriceReportEntry data={re.price} /> </Grid>
-               <Grid item=true> <MACDReportEntry data={re.macd} /> </Grid>
-             </Grid>
-           | `ERROR(err) => <p> err->React.string </p>
-           }}
-        </CardContent>
-      </Card>
-    </Grid>;
-  };
+  let make = (~pdata: WebReport.Report_t.report_entry, ~index: int) =>
+    {
+      switch (pdata.data) {
+      | `SUCCESS(re) => [
+          <PriceReportTR
+            key="price"
+            name={pdata.pair}
+            period={pdata.period->period_to_string}
+            data={re.price}
+            index
+          />,
+          <MACDReportTR
+            key="macd"
+            name={pdata.pair}
+            period={pdata.period->period_to_string}
+            data={re.macd}
+            index
+          />,
+        ]
+      | `ERROR(err) => [
+          <TableRow> <TableCell> err->React.string </TableCell> </TableRow>,
+        ]
+      };
+    }
+    ->listToReactArray;
 };
 
-module Pair = {
-  [@react.component]
-  let make = (~name: string, ~data: list(WebReport.Report_t.report_entry)) => {
-    <Grid item=true>
-      <Box
-        border={Box.Value.int(1)}
-        borderColor={Box.Value.paletteColor(Box.PaletteColor.primary_light)}>
-        <Typography color=`Primary variant=`H6>
-          name->React.string
-        </Typography>
-        <Grid
-          container=true direction=`Column spacing=`V2 justify=`Space_Around>
-          {data
-           ->Belt.List.mapWithIndex((i, pdata) =>
-               <PairPeriod key={i->string_of_int} pdata />
-             )
-           ->listToReactArray}
-        </Grid>
-      </Box>
-    </Grid>;
-  };
-};
-
-module Main = (Fetcher: Http.Fetcher) => {
-  module Hook' = Hook(Fetcher);
-
+module ReportTable = {
   let getPairList = (data: WebReport.Report_t.report): list(string) => {
     data
     ->Belt.List.map(e => e.pair)
@@ -205,10 +211,37 @@ module Main = (Fetcher: Http.Fetcher) => {
   };
 
   let filterReportEntryByName =
-      (name: string, data: WebReport.Report_t.report)
+      (data: WebReport.Report_t.report, name: string)
       : list(WebReport.Report_t.report_entry) => {
     data->Belt.List.keep(e => String.equal(e.pair, name));
   };
+  [@react.component]
+  let make = (~data: list(WebReport.Report_t.report_entry)) => {
+    <Box
+      border={Box.Value.int(1)}
+      borderColor={Box.Value.paletteColor(Box.PaletteColor.primary_light)}>
+      <Table size=`Small>
+        <ReportEntryTH depth={data->Belt.List.getExn(0).depth} />
+        <TableBody>
+          {data
+           ->getPairList
+           ->Belt.List.mapWithIndex((i, pname) =>
+               data
+               ->filterReportEntryByName(pname)
+               ->Belt.List.mapWithIndex((j, pdata) =>
+                   <PairTRs index=i key={pname ++ j->string_of_int} pdata />
+                 )
+             )
+           ->Belt.List.flatten
+           ->listToReactArray}
+        </TableBody>
+      </Table>
+    </Box>;
+  };
+};
+
+module Main = (Fetcher: Http.Fetcher) => {
+  module Hook' = Hook(Fetcher);
 
   [@react.component]
   let make = () => {
@@ -226,21 +259,7 @@ module Main = (Fetcher: Http.Fetcher) => {
         <Typography variant=`H3 gutterBottom=true>
           "BBot Report"->React.string
         </Typography>
-        <Grid
-          container=true direction=`Column spacing=`V2 justify=`Space_Around>
-          {{
-             data
-             ->getPairList
-             ->Belt.List.map(name =>
-                 <Pair
-                   key=name
-                   name
-                   data={filterReportEntryByName(name, data)}
-                 />
-               );
-           }
-           ->listToReactArray}
-        </Grid>
+        <ReportTable data />
       </Container>
     | Failure(_) => <p> "Failure loading report"->React.string </p>
     };
