@@ -22,7 +22,6 @@ module ReportEntryTH = {
       <TableRow>
         {{
            Belt.List.make(depth, ())
-           ->Belt.List.reverse
            ->Belt.List.mapWithIndex((i, _) =>
                <TableCell key={i->string_of_int}>
                  {("T-" ++ (depth - i)->string_of_int)->React.string}
@@ -51,7 +50,6 @@ module PriceReportEntry = {
               <TableRow>
                 {{
                    data.periods
-                   ->Belt.List.reverse
                    ->Belt.List.mapWithIndex((i, e) =>
                        <TableCell key={i->string_of_int}>
                          {e->Js.Float.toString->React.string}
@@ -115,7 +113,6 @@ module MACDReportEntry = {
               <TableRow>
                 {{
                    data.periods
-                   ->Belt.List.reverse
                    ->Belt.List.mapWithIndex((i, e) =>
                        <TableCell key={i->string_of_int}>
                          {"D/"

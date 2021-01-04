@@ -7,6 +7,8 @@
     "build": "bsb -make-world",
     "start": "bsb -make-world -w",
     "serve": "parcel serve ./src/index.html",
+    "dist": "rm -Rf dist && parcel build ./src/index.html --public-url /bbot/",
+    "deploy": "rsync -av dist/ okombu.com:/var/www/www/bbot/",
     "clean": "find src/ tests/ -name '*.bs.js' -delete && rm -Rf lib node_modules",
     "atdgen": "cp ../bbot/src/report.atd src/ && atdgen -t src/report.atd && atdgen -bs src/report.atd"
   },
