@@ -256,10 +256,14 @@ module Main = (Fetcher: Http.Fetcher) => {
     | Loading(_) => React.null
     | Success(data) =>
       <Container>
-        <Typography variant=`H3 gutterBottom=true>
-          "BBot Report"->React.string
-        </Typography>
-        <ReportTable data />
+        <Grid container=true>
+          <Grid item=true>
+            <Typography variant=`H3 gutterBottom=true>
+              "BBot Report"->React.string
+            </Typography>
+          </Grid>
+          <Grid item=true> <ReportTable data /> </Grid>
+        </Grid>
       </Container>
     | Failure(_) => <p> "Failure loading report"->React.string </p>
     };
