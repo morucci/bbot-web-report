@@ -18,8 +18,9 @@ type period = [ `ONE_H | `ONE_D ]
 type report_entry = {
   data: x_report_entry_se;
   pair: string;
+  url: string;
   depth: int;
   period: period
 }
 
-type report = report_entry list
+type report = { report: report_entry list; epoch: float }

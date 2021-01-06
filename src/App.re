@@ -68,6 +68,7 @@ module PriceReportTR = {
         ~name: string,
         ~period: string,
         ~data: WebReport.Report_t.price_report_entry,
+        ~url: string,
         ~index: int,
       ) => {
     <TableRow style={getRowStyle(index)}>
@@ -86,7 +87,9 @@ module PriceReportTR = {
              <TableCell key="period"> period->React.string </TableCell>,
            )
          ->Belt.List.add(
-             <TableCell key="name"> name->React.string </TableCell>,
+             <TableCell key="name">
+               <a href=url> name->React.string </a>
+             </TableCell>,
            );
        }
        ->listToReactArray}
@@ -112,6 +115,7 @@ module MACDReportTR = {
         ~name: string,
         ~period: string,
         ~data: WebReport.Report_t.macd_report_entry,
+        ~url: string,
         ~index: int,
       ) => {
     let cs =
@@ -158,7 +162,9 @@ module MACDReportTR = {
              <TableCell key="period"> period->React.string </TableCell>,
            )
          ->Belt.List.add(
-             <TableCell key="name"> name->React.string </TableCell>,
+             <TableCell key="name">
+               <a href=url> name->React.string </a>
+             </TableCell>,
            );
        }
        ->listToReactArray}
@@ -183,6 +189,7 @@ module PairTRs = {
             name={pdata.pair}
             period={pdata.period->period_to_string}
             data={re.price}
+            url={pdata.url}
             index
           />,
           <MACDReportTR
@@ -190,6 +197,7 @@ module PairTRs = {
             name={pdata.pair}
             period={pdata.period->period_to_string}
             data={re.macd}
+            url={pdata.url}
             index
           />,
         ]
@@ -202,7 +210,8 @@ module PairTRs = {
 };
 
 module ReportTable = {
-  let getPairList = (data: WebReport.Report_t.report): list(string) => {
+  let getPairList =
+      (data: list(WebReport.Report_t.report_entry)): list(string) => {
     data
     ->Belt.List.map(e => e.pair)
     ->Belt.List.reduce([], (acc, e) =>
@@ -211,7 +220,7 @@ module ReportTable = {
   };
 
   let filterReportEntryByName =
-      (data: WebReport.Report_t.report, name: string)
+      (data: list(WebReport.Report_t.report_entry), name: string)
       : list(WebReport.Report_t.report_entry) => {
     data->Belt.List.keep(e => String.equal(e.pair, name));
   };
@@ -243,6 +252,10 @@ module ReportTable = {
 module Main = (Fetcher: Http.Fetcher) => {
   module Hook' = Hook(Fetcher);
 
+  let getHRDateFromEpoch = (epoch: float) => {
+    Js.Date.fromFloat(epoch *. 1000.)->Js.Date.toUTCString;
+  };
+
   [@react.component]
   let make = () => {
     let (state, cb, _) = Hook'.use();
@@ -261,8 +274,12 @@ module Main = (Fetcher: Http.Fetcher) => {
             <Typography variant=`H3 gutterBottom=true>
               "BBot Report"->React.string
             </Typography>
+            <Typography variant=`H6 gutterBottom=true>
+              {("Generated at: " ++ data.epoch->getHRDateFromEpoch)
+               ->React.string}
+            </Typography>
           </Grid>
-          <Grid item=true> <ReportTable data /> </Grid>
+          <Grid item=true> <ReportTable data={data.report} /> </Grid>
         </Grid>
       </Container>
     | Failure(_) => <p> "Failure loading report"->React.string </p>

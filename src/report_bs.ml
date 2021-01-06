@@ -27,11 +27,12 @@ type period = Report_t.period
 type report_entry = Report_t.report_entry = {
   data: x_report_entry_se;
   pair: string;
+  url: string;
   depth: int;
   period: period
 }
 
-type report = Report_t.report
+type report = Report_t.report = { report: report_entry list; epoch: float }
 
 let write__1 = (
   Atdgen_codec_runtime.Encode.list (
@@ -324,6 +325,13 @@ let write_report_entry = (
         ;
           Atdgen_codec_runtime.Encode.field
             (
+            Atdgen_codec_runtime.Encode.string
+            )
+          ~name:"url"
+          t.url
+        ;
+          Atdgen_codec_runtime.Encode.field
+            (
             Atdgen_codec_runtime.Encode.int
             )
           ~name:"depth"
@@ -355,6 +363,12 @@ let read_report_entry = (
               Atdgen_codec_runtime.Decode.string
               |> Atdgen_codec_runtime.Decode.field "pair"
             ) json;
+          url =
+            Atdgen_codec_runtime.Decode.decode
+            (
+              Atdgen_codec_runtime.Decode.string
+              |> Atdgen_codec_runtime.Decode.field "url"
+            ) json;
           depth =
             Atdgen_codec_runtime.Decode.decode
             (
@@ -382,8 +396,44 @@ let read__3 = (
   )
 )
 let write_report = (
-  write__3
+  Atdgen_codec_runtime.Encode.make (fun (t : report) ->
+    (
+    Atdgen_codec_runtime.Encode.obj
+      [
+          Atdgen_codec_runtime.Encode.field
+            (
+            write__3
+            )
+          ~name:"report"
+          t.report
+        ;
+          Atdgen_codec_runtime.Encode.field
+            (
+            Atdgen_codec_runtime.Encode.float
+            )
+          ~name:"epoch"
+          t.epoch
+      ]
+    )
+  )
 )
 let read_report = (
-  read__3
+  Atdgen_codec_runtime.Decode.make (fun json ->
+    (
+      ({
+          report =
+            Atdgen_codec_runtime.Decode.decode
+            (
+              read__3
+              |> Atdgen_codec_runtime.Decode.field "report"
+            ) json;
+          epoch =
+            Atdgen_codec_runtime.Decode.decode
+            (
+              Atdgen_codec_runtime.Decode.float
+              |> Atdgen_codec_runtime.Decode.field "epoch"
+            ) json;
+      } : report)
+    )
+  )
 )
