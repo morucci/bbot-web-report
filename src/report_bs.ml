@@ -9,9 +9,11 @@ type macd_entry = Report_t.macd_entry = { diff: float; macd_line: float }
 
 type gb = Report_t.gb
 
+type cs = Report_t.cs
+
 type macd_report_entry = Report_t.macd_report_entry = {
   periods: macd_entry list;
-  cs: int;
+  cs: cs;
   momentum: gb
 }
 
@@ -139,6 +141,40 @@ let read_gb = (
       )
   ]
 )
+let write_cs = (
+  Atdgen_codec_runtime.Encode.make (fun (x : _) -> match x with
+    | `UP x ->
+    Atdgen_codec_runtime.Encode.constr1 "UP" (
+      Atdgen_codec_runtime.Encode.int
+    ) x
+    | `DOWN x ->
+    Atdgen_codec_runtime.Encode.constr1 "DOWN" (
+      Atdgen_codec_runtime.Encode.int
+    ) x
+  )
+)
+let read_cs = (
+  Atdgen_codec_runtime.Decode.enum
+  [
+      (
+      "UP"
+      ,
+        `Decode (
+        Atdgen_codec_runtime.Decode.int
+        |> Atdgen_codec_runtime.Decode.map (fun x -> ((`UP x) : _))
+        )
+      )
+    ;
+      (
+      "DOWN"
+      ,
+        `Decode (
+        Atdgen_codec_runtime.Decode.int
+        |> Atdgen_codec_runtime.Decode.map (fun x -> ((`DOWN x) : _))
+        )
+      )
+  ]
+)
 let write__2 = (
   Atdgen_codec_runtime.Encode.list (
     write_macd_entry
@@ -163,7 +199,7 @@ let write_macd_report_entry = (
         ;
           Atdgen_codec_runtime.Encode.field
             (
-            Atdgen_codec_runtime.Encode.int
+            write_cs
             )
           ~name:"cs"
           t.cs
@@ -191,7 +227,7 @@ let read_macd_report_entry = (
           cs =
             Atdgen_codec_runtime.Decode.decode
             (
-              Atdgen_codec_runtime.Decode.int
+              read_cs
               |> Atdgen_codec_runtime.Decode.field "cs"
             ) json;
           momentum =

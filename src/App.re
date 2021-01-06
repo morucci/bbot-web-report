@@ -108,6 +108,16 @@ module MACDReportTR = {
     | `BAD => `Secondary
     | `GOOD => `Primary
     };
+  let csToString = (cs: WebReport.Report_t.cs) =>
+    switch (cs) {
+    | `UP(cs') => cs'->string_of_int
+    | `DOWN(cs') => cs'->string_of_int
+    };
+  let csToColor = (cs: WebReport.Report_t.cs) =>
+    switch (cs) {
+    | `UP(_) => `Primary
+    | `DOWN(_) => `Secondary
+    };
 
   [@react.component]
   let make =
@@ -123,8 +133,8 @@ module MACDReportTR = {
         variant=`Outlined
         size=`Small
         avatar={<Avatar> "CS"->React.string </Avatar>}
-        label={data.cs->string_of_int->React.string}
-        color=`Primary
+        label={data.cs->csToString->React.string}
+        color={data.cs->csToColor}
       />;
     let momentum =
       <Chip

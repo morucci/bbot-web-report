@@ -7,7 +7,9 @@ type macd_entry = { diff: float; macd_line: float }
 
 type gb = [ `GOOD | `BAD ]
 
-type macd_report_entry = { periods: macd_entry list; cs: int; momentum: gb }
+type cs = [ `UP of int | `DOWN of int ]
+
+type macd_report_entry = { periods: macd_entry list; cs: cs; momentum: gb }
 
 type x_report_entry = { price: price_report_entry; macd: macd_report_entry }
 

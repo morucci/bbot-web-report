@@ -9,9 +9,11 @@ type macd_entry = Report_t.macd_entry = { diff: float; macd_line: float }
 
 type gb = Report_t.gb
 
+type cs = Report_t.cs
+
 type macd_report_entry = Report_t.macd_report_entry = {
   periods: macd_entry list;
-  cs: int;
+  cs: cs;
   momentum: gb
 }
 
@@ -45,6 +47,10 @@ val write_macd_entry :  macd_entry Atdgen_codec_runtime.Encode.t
 val read_gb :  gb Atdgen_codec_runtime.Decode.t
 
 val write_gb :  gb Atdgen_codec_runtime.Encode.t
+
+val read_cs :  cs Atdgen_codec_runtime.Decode.t
+
+val write_cs :  cs Atdgen_codec_runtime.Encode.t
 
 val read_macd_report_entry :  macd_report_entry Atdgen_codec_runtime.Decode.t
 
